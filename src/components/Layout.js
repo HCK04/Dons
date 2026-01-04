@@ -28,6 +28,11 @@ export default function Layout({ children }) {
             <Link to="/campaigns/new" className="hover:text-primary">
               Nouvelle campagne
             </Link>
+            {currentUser?.role === 'admin' && (
+              <Link to="/admin" className="hover:text-primary">
+                Admin
+              </Link>
+            )}
             {currentUser ? (
               <>
                 <Link to="/profile" className="hover:text-primary">

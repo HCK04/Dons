@@ -2,6 +2,8 @@ import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import DonationForm from '../components/DonationForm';
+import DonationFormStripe from '../components/DonationFormStripe';
+import { HAS_STRIPE } from '../stripe';
 import DonationList from '../components/DonationList';
 
 export default function CampaignDetail() {
@@ -77,13 +79,27 @@ export default function CampaignDetail() {
       </div>
 
       <div className="space-y-4">
-        <DonationForm onSubmit={handleDonation} campaignTitle={campaign.title} />
+        {HAS_STRIPE ? (
+          <DonationFormStripe onSubmit={handleDonation} campaignTitle={campaign.title} />
+        ) : (
+          <DonationForm onSubmit={handleDonation} campaignTitle={campaign.title} />
+        )}
         <div className="card card-padding text-sm text-slate-600">
-          <p className="font-semibold text-dark">Simulation Stripe test</p>
-          <p>
-            Les appels API ne sont pas connectes au backend. Le front simule l ajout de don et met a jour les stats en
-            memoire pour la demo.
-          </p>
+          {HAS_STRIPE ? (
+            <>
+              <p className="font-semibold text-dark">Stripe en mode test</p>
+              <p>
+                Paiement reel en environnement test via Stripe. Utilisez la carte 4242 4242 4242 4242, une date future et un CVC quelconque.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="font-semibold text-dark">Simulation Stripe test</p>
+              <p>
+                Pas de backend configure. Le front simule l ajout de don et met a jour les statistiques en memoire.
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>

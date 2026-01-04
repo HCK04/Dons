@@ -1,6 +1,8 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Elements } from '@stripe/react-stripe-js';
 import { AppProvider } from './context/AppContext';
+import { stripePromise, HAS_STRIPE } from './stripe';
 import Layout from './components/Layout';
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
@@ -11,11 +13,11 @@ import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
 import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminRoute from './components/AdminRoute';
+import AdminPage from './pages/AdminPage';
 
 function App() {
-  return (
-    <AppProvider>
-      <BrowserRouter>
+  const content = (
         <Layout>
           <Routes>
             <Route path="/" element={<LandingPage />} />
@@ -54,9 +56,29 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/admin"
+              element={
+                <AdminRoute>
+                  <AdminPage />
+                </AdminRoute>
+              }
+            />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
+  );
+
+  return (
+    <AppProvider>
+      <BrowserRouter>
+        {HAS_STRIPE && stripePromise ? (
+          <Elements stripe={stripePromise} options={{ locale: 'fr' }}>
+            {content}
+          </Elements>
+        ) : (
+          content
+        )}
       </BrowserRouter>
     </AppProvider>
   );

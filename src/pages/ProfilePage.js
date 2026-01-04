@@ -5,7 +5,8 @@ import { useAppContext } from '../context/AppContext';
 export default function ProfilePage() {
   const { currentUser, campaigns, donations, donors } = useAppContext();
   const myCampaigns = campaigns.filter((c) => c.creatorId === currentUser?.id);
-  const myDonations = donations.filter((d) => d.donorId === currentUser?.id);
+  const myDonor = donors.find((d) => d.email === currentUser?.email);
+  const myDonations = myDonor ? donations.filter((d) => d.donorId === myDonor.id) : [];
 
   return (
     <div className="section max-w-4xl space-y-6">

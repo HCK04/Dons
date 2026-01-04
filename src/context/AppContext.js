@@ -43,12 +43,18 @@ const seedDonations = [
   { id: 3, campaignId: 2, donorId: 1, amount: 90, message: 'Pour les enfants.', date: '2024-09-14' },
 ];
 
+const seedOrganizations = [
+  { id: 1, name: 'Croix Rouge Locale', description: 'Aide humanitaire' },
+  { id: 2, name: 'Enfants du Monde', description: 'Soutien aux enfants' },
+];
+
 export function AppProvider({ children }) {
   const [users, setUsers] = useState(seedUsers);
   const [campaigns, setCampaigns] = useState(seedCampaigns);
   const [donors, setDonors] = useState(seedDonors);
   const [donations, setDonations] = useState(seedDonations);
   const [currentUser, setCurrentUser] = useState(seedUsers[0]);
+  const [organizations, setOrganizations] = useState(seedOrganizations);
 
   const register = ({ name, email, password }) => {
     const exists = users.some((u) => u.email === email);
@@ -59,6 +65,16 @@ export function AppProvider({ children }) {
     return newUser;
   };
 
+  const addOrganization = ({ name, description }) => {
+    const newOrg = { id: organizations.length + 1, name, description };
+    setOrganizations((prev) => [...prev, newOrg]);
+    return newOrg;
+  };
+
+  const deleteOrganization = (id) => {
+    setOrganizations((prev) => prev.filter((o) => o.id !== id));
+  };
+
   const login = ({ email, password }) => {
     const user = users.find((u) => u.email === email && u.password === password);
     if (!user) throw new Error('Identifiants incorrects');
@@ -67,6 +83,21 @@ export function AppProvider({ children }) {
   };
 
   const logout = () => setCurrentUser(null);
+
+  const addUser = ({ name, email, password, role = 'editor' }) => {
+    const exists = users.some((u) => u.email === email);
+    if (exists) throw new Error('Email deja utilise.');
+    const newUser = { id: users.length + 1, name, email, password, role };
+    setUsers((prev) => [...prev, newUser]);
+    return newUser;
+  };
+
+  const deleteUser = (id) => {
+    setUsers((prev) => prev.filter((u) => u.id !== id));
+    setCampaigns((prev) => prev.filter((c) => c.creatorId !== id));
+    setDonations((prev) => prev.filter((d) => d.donorId !== id));
+    if (currentUser?.id === id) setCurrentUser(null);
+  };
 
   const createCampaign = (data) => {
     if (!currentUser) throw new Error('Non authentifie');
@@ -133,18 +164,23 @@ export function AppProvider({ children }) {
       campaigns,
       donations,
       donors,
+      organizations,
       currentUser,
       register,
       login,
       logout,
+      addUser,
+      deleteUser,
       createCampaign,
       updateCampaign,
       deleteCampaign,
       addDonation,
+      addOrganization,
+      deleteOrganization,
       getCampaignStats,
       totals,
     }),
-    [users, campaigns, donations, donors, currentUser, totals]
+    [users, campaigns, donations, donors, organizations, currentUser, totals]
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
