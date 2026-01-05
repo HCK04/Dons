@@ -1,5 +1,7 @@
 import React from 'react';
 
+const formatDH = (amount) => `${Number(amount).toLocaleString('fr-MA', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} DH`;
+
 export default function DonationList({ donations, donors }) {
   if (!donations.length) {
     return <div className="card card-padding text-sm text-slate-600">Aucun don pour le moment.</div>;
@@ -19,7 +21,7 @@ export default function DonationList({ donations, donors }) {
             <div className="flex items-center justify-between">
               <p className="font-semibold text-dark">{donorName(donation.donorId)}</p>
               <span className="text-sm text-primary font-semibold">
-                {donation.amount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+                {formatDH(donation.amount)}
               </span>
             </div>
             {donation.message && <p className="text-sm text-slate-600">{donation.message}</p>}
@@ -30,4 +32,5 @@ export default function DonationList({ donations, donors }) {
     </div>
   );
 }
+
 

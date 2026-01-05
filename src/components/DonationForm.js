@@ -1,16 +1,22 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-export default function DonationForm({ onSubmit, campaignTitle }) {
+export default function DonationForm({ onSubmit, campaignTitle, lockIdentity = false, prefillName = '', prefillEmail = '' }) {
   const [form, setForm] = useState({ name: '', email: '', amount: '', message: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  useEffect(() => {
+    if (lockIdentity) {
+      setForm((prev) => ({ ...prev, name: prefillName || prev.name, email: prefillEmail || prev.email }));
+    }
+  }, [lockIdentity, prefillName, prefillEmail]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
@@ -19,9 +25,18 @@ export default function DonationForm({ onSubmit, campaignTitle }) {
       setError('Nom, email et montant valide requis.');
       return;
     }
-    onSubmit({ ...form, amount: amountNumber });
-    setSuccess('Don enregistre (simulation Stripe test). Merci !');
-    setForm({ name: '', email: '', amount: '', message: '' });
+    try {
+      await onSubmit({ ...form, amount: amountNumber });
+      setSuccess('Don enregistre. Merci !');
+      setForm((prev) => ({
+        name: lockIdentity ? prev.name : '',
+        email: lockIdentity ? prev.email : '',
+        amount: '',
+        message: '',
+      }));
+    } catch (err) {
+      setError(err?.message || 'Impossible d\u2019enregistrer le don.');
+    }
   };
 
   return (
@@ -33,7 +48,14 @@ export default function DonationForm({ onSubmit, campaignTitle }) {
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div>
           <label className="label">Nom</label>
-          <input className="input" name="name" value={form.name} onChange={handleChange} placeholder="Votre nom" />
+          <input
+            className="input"
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            placeholder="Votre nom"
+            disabled={lockIdentity}
+          />
         </div>
         <div>
           <label className="label">Email</label>
@@ -44,10 +66,11 @@ export default function DonationForm({ onSubmit, campaignTitle }) {
             value={form.email}
             onChange={handleChange}
             placeholder="email@example.com"
+            disabled={lockIdentity}
           />
         </div>
         <div>
-          <label className="label">Montant (EUR)</label>
+          <label className="label">Montant (DH)</label>
           <input
             className="input"
             type="number"
@@ -74,7 +97,7 @@ export default function DonationForm({ onSubmit, campaignTitle }) {
           <div className="rounded-md bg-green-50 border border-green-200 px-3 py-2 text-sm text-green-700">{success}</div>
         )}
         <button type="submit" className="btn-primary w-full">
-          Simuler le paiement Stripe
+          Valider le don
         </button>
       </form>
     </div>

@@ -1,11 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+const formatDH = (amount) => `${Number(amount).toLocaleString('fr-MA', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} DH`;
+
 export default function CampaignCard({ campaign, collected, donors }) {
   const percent = Math.min(100, Math.round((collected / campaign.goal) * 100)) || 0;
   return (
-    <div className="tilt-wrapper">
-      <div className="card tilt-card">
+    <div className="card">
       <div className="h-44 w-full overflow-hidden rounded-t-lg relative">
         <img src={campaign.image} alt={campaign.title} className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/30 to-transparent" />
@@ -23,15 +24,13 @@ export default function CampaignCard({ campaign, collected, donors }) {
         </div>
         <div className="flex items-center justify-between text-sm text-slate-700">
           <span>
-            {collected.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })} /{' '}
-            {campaign.goal.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+            {formatDH(collected)} / {formatDH(campaign.goal)}
           </span>
           <span className="text-slate-500">{donors} donateurs</span>
         </div>
         <Link to={`/campaigns/${campaign.id}`} className="btn-primary w-full text-center">
           Voir la campagne
         </Link>
-      </div>
       </div>
     </div>
   );

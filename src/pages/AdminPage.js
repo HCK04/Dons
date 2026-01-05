@@ -26,43 +26,43 @@ export default function AdminPage() {
     setSuccess('');
   };
 
-  const onUserSubmit = (e) => {
+  const onUserSubmit = async (e) => {
     e.preventDefault();
     resetAlerts();
     try {
       if (!userForm.name || !userForm.email || !userForm.password) throw new Error('Champs utilisateur requis.');
-      addUser(userForm);
+      await addUser(userForm);
       setUserForm({ name: '', email: '', password: '', role: 'editor' });
       setSuccess('Utilisateur ajoute.');
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Erreur lors de l\'ajout d\'utilisateur');
     }
   };
 
-  const onOrgSubmit = (e) => {
+  const onOrgSubmit = async (e) => {
     e.preventDefault();
     resetAlerts();
     try {
       if (!orgForm.name) throw new Error('Nom de l\'organisation requis.');
-      addOrganization(orgForm);
+      await addOrganization(orgForm);
       setOrgForm({ name: '', description: '' });
       setSuccess('Organisation ajoutee.');
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Erreur lors de l\'ajout\n de l\'organisation');
     }
   };
 
-  const onDonationSubmit = (e) => {
+  const onDonationSubmit = async (e) => {
     e.preventDefault();
     resetAlerts();
     try {
       const payload = { ...donForm, amount: Number(donForm.amount), campaignId: Number(donForm.campaignId) };
       if (!payload.campaignId || !payload.name || !payload.email || !payload.amount) throw new Error('Champs du don requis.');
-      addDonation(payload);
+      await addDonation(payload);
       setDonForm({ campaignId: '', name: '', email: '', amount: '', message: '' });
       setSuccess('Don enregistre (admin).');
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Erreur lors de l\'enregistrement du don');
     }
   };
 
@@ -71,9 +71,9 @@ export default function AdminPage() {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm text-slate-500">Administration</p>
-          <h1 className="text-2xl font-bold text-dark">Panneau d\'administration</h1>
+          <h1 className="text-2xl font-bold text-dark">Panneau d'administration</h1>
         </div>
-        <div className="badge">Stats | Utilisateurs: {users.length} · Organisations: {organizations.length} · Campagnes: {campaigns.length}</div>
+        <div className="badge">Utilisateurs: {users.length} · Organisations: {organizations.length} · Campagnes: {campaigns.length}</div>
       </div>
 
       {error && <div className="rounded-md bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">{error}</div>}
@@ -91,7 +91,8 @@ export default function AdminPage() {
               <input className="input" placeholder="Email" type="email" value={userForm.email} onChange={(e) => setUserForm((p) => ({ ...p, email: e.target.value }))} />
               <input className="input" placeholder="Mot de passe" type="password" value={userForm.password} onChange={(e) => setUserForm((p) => ({ ...p, password: e.target.value }))} />
               <select className="input" value={userForm.role} onChange={(e) => setUserForm((p) => ({ ...p, role: e.target.value }))}>
-                <option value="editor">editor</option>
+                <option value="editor">utilisateur</option>
+                <option value="organisation">organisation</option>
                 <option value="admin">admin</option>
               </select>
             </div>

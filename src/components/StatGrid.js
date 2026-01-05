@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function StatGrid({ stats }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {stats.map((stat) => (
         <div key={stat.label} className="card card-padding">
           <p className="text-sm text-slate-500">{stat.label}</p>
@@ -13,4 +13,5 @@ export default function StatGrid({ stats }) {
     </div>
   );
 }
+
 

@@ -65,7 +65,7 @@ export default function CampaignForm({ onSubmit, initialValues, submitLabel }) {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
-          <label className="label">Objectif (EUR)</label>
+          <label className="label">Objectif (DH)</label>
           <input
             className="input"
             type="number"
@@ -92,4 +92,5 @@ export default function CampaignForm({ onSubmit, initialValues, submitLabel }) {
     </form>
   );
 }
+
 

@@ -1,13 +1,19 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-export default function DonationFormStripe({ onSubmit, campaignTitle }) {
+export default function DonationFormStripe({ onSubmit, campaignTitle, lockIdentity = false, prefillName = '', prefillEmail = '' }) {
   const [form, setForm] = useState({ name: '', email: '', amount: '', message: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const stripe = useStripe();
   const elements = useElements();
+
+  useEffect(() => {
+    if (lockIdentity) {
+      setForm((prev) => ({ ...prev, name: prefillName || prev.name, email: prefillEmail || prev.email }));
+    }
+  }, [lockIdentity, prefillName, prefillEmail]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -45,9 +51,14 @@ export default function DonationFormStripe({ onSubmit, campaignTitle }) {
         throw new Error(result.error.message);
       }
       if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
-        onSubmit({ ...form, amount: amountNumber });
-        setSuccess('Paiement Stripe (test) reussi. Merci pour votre don !');
-        setForm({ name: '', email: '', amount: '', message: '' });
+        await onSubmit({ ...form, amount: amountNumber });
+        setSuccess('Paiement effectue. Merci pour votre don !');
+        setForm((prev) => ({
+          name: lockIdentity ? prev.name : '',
+          email: lockIdentity ? prev.email : '',
+          amount: '',
+          message: '',
+        }));
         const cardEl = elements.getElement(CardElement);
         if (cardEl) cardEl.clear();
       } else {
@@ -69,7 +80,14 @@ export default function DonationFormStripe({ onSubmit, campaignTitle }) {
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div>
           <label className="label">Nom</label>
-          <input className="input" name="name" value={form.name} onChange={handleChange} placeholder="Votre nom" />
+          <input
+            className="input"
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            placeholder="Votre nom"
+            disabled={lockIdentity}
+          />
         </div>
         <div>
           <label className="label">Email</label>
@@ -80,10 +98,11 @@ export default function DonationFormStripe({ onSubmit, campaignTitle }) {
             value={form.email}
             onChange={handleChange}
             placeholder="email@example.com"
+            disabled={lockIdentity}
           />
         </div>
         <div>
-          <label className="label">Montant (EUR)</label>
+          <label className="label">Montant (DH)</label>
           <input
             className="input"
             type="number"
@@ -95,7 +114,7 @@ export default function DonationFormStripe({ onSubmit, campaignTitle }) {
           />
         </div>
         <div>
-          <label className="label">Carte (Stripe test)</label>
+          <label className="label">Carte bancaire</label>
           <div className="input py-3">
             <CardElement options={{ hidePostalCode: true }} />
           </div>
@@ -116,7 +135,7 @@ export default function DonationFormStripe({ onSubmit, campaignTitle }) {
           <div className="rounded-md bg-green-50 border border-green-200 px-3 py-2 text-sm text-green-700">{success}</div>
         )}
         <button type="submit" className="btn-primary w-full" disabled={loading}>
-          {loading ? 'Paiement en cours...' : 'Payer avec Stripe (test)'}
+          {loading ? 'Paiement en cours...' : 'Valider le paiement'}
         </button>
       </form>
     </div>

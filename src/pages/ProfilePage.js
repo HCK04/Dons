@@ -7,6 +7,7 @@ export default function ProfilePage() {
   const myCampaigns = campaigns.filter((c) => c.creatorId === currentUser?.id);
   const myDonor = donors.find((d) => d.email === currentUser?.email);
   const myDonations = myDonor ? donations.filter((d) => d.donorId === myDonor.id) : [];
+  const formatDH = (amount) => `${Number(amount).toLocaleString('fr-MA', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} DH`;
 
   return (
     <div className="section max-w-4xl space-y-6">
@@ -21,9 +22,11 @@ export default function ProfilePage() {
         <div className="card card-padding space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-dark">Campagnes creees</h2>
-            <Link to="/campaigns/new" className="text-sm text-primary font-semibold">
-              Nouvelle campagne
-            </Link>
+            {(currentUser?.role === 'organisation' || currentUser?.role === 'admin') && (
+              <Link to="/campaigns/new" className="text-sm text-primary font-semibold">
+                Nouvelle campagne
+              </Link>
+            )}
           </div>
           {myCampaigns.length === 0 ? (
             <p className="text-sm text-slate-600">Aucune campagne pour le moment.</p>
@@ -42,7 +45,7 @@ export default function ProfilePage() {
         </div>
 
         <div className="card card-padding space-y-3">
-          <h2 className="text-lg font-semibold text-dark">Dons effectues (simulation)</h2>
+          <h2 className="text-lg font-semibold text-dark">Dons effectues</h2>
           {myDonations.length === 0 ? (
             <p className="text-sm text-slate-600">Aucun don enregistre.</p>
           ) : (
@@ -50,9 +53,7 @@ export default function ProfilePage() {
               {myDonations.map((d) => (
                 <li key={d.id} className="flex items-center justify-between">
                   <span>{donors.find((don) => don.id === d.donorId)?.name || 'Vous'}</span>
-                  <span className="text-primary font-semibold">
-                    {d.amount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
-                  </span>
+                  <span className="text-primary font-semibold">{formatDH(d.amount)}</span>
                 </li>
               ))}
             </ul>
@@ -62,4 +63,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
 

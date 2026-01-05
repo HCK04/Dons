@@ -14,6 +14,7 @@ import ProfilePage from './pages/ProfilePage';
 import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
+import OrgRoute from './components/OrgRoute';
 import AdminPage from './pages/AdminPage';
 
 function App() {
@@ -32,17 +33,17 @@ function App() {
             <Route
               path="/campaigns/new"
               element={
-                <ProtectedRoute>
+                <OrgRoute>
                   <CampaignFormPage mode="create" />
-                </ProtectedRoute>
+                </OrgRoute>
               }
             />
             <Route
               path="/campaigns/:id/edit"
               element={
-                <ProtectedRoute>
+                <OrgRoute>
                   <CampaignFormPage mode="edit" />
-                </ProtectedRoute>
+                </OrgRoute>
               }
             />
             <Route path="/campaigns/:id" element={<CampaignDetail />} />

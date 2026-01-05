@@ -11,13 +11,17 @@ export default function CampaignFormPage({ mode }) {
   const isEdit = mode === 'edit';
   const campaign = isEdit ? campaigns.find((c) => c.id === Number(id)) : null;
 
-  const handleSubmit = (data) => {
-    if (isEdit && campaign) {
-      updateCampaign(campaign.id, data);
-      navigate(`/campaigns/${campaign.id}`);
-    } else {
-      const newCamp = createCampaign(data);
-      navigate(`/campaigns/${newCamp.id}`);
+  const handleSubmit = async (data) => {
+    try {
+      if (isEdit && campaign) {
+        await updateCampaign(campaign.id, data);
+        navigate(`/campaigns/${campaign.id}`);
+      } else {
+        const newCamp = await createCampaign(data);
+        navigate(`/campaigns/${newCamp.id}`);
+      }
+    } catch (e) {
+      // Optionally show a toast or error UI here
     }
   };
 
@@ -40,4 +44,5 @@ export default function CampaignFormPage({ mode }) {
     </div>
   );
 }
+
 

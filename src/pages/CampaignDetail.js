@@ -26,9 +26,14 @@ export default function CampaignDetail() {
   }
 
   const stats = getCampaignStats(campaign.id);
+  const formatDH = (amount) => `${Number(amount).toLocaleString('fr-MA', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} DH`;
 
-  const handleDonation = (payload) => {
-    addDonation({ ...payload, campaignId: campaign.id });
+  const handleDonation = async (payload) => {
+    try {
+      await addDonation({ ...payload, campaignId: campaign.id });
+    } catch (e) {
+      navigate('/login');
+    }
   };
 
   const percent = Math.min(100, Math.round((stats.collected / campaign.goal) * 100)) || 0;
@@ -55,8 +60,7 @@ export default function CampaignDetail() {
               </div>
               <div className="flex items-center justify-between text-sm text-slate-700">
                 <span>
-                  {stats.collected.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })} /{' '}
-                  {campaign.goal.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+                  {formatDH(stats.collected)} / {formatDH(campaign.goal)}
                 </span>
                 <span>{stats.donorsCount} donateurs</span>
               </div>
@@ -79,30 +83,38 @@ export default function CampaignDetail() {
       </div>
 
       <div className="space-y-4">
-        {HAS_STRIPE ? (
-          <DonationFormStripe onSubmit={handleDonation} campaignTitle={campaign.title} />
+        {!currentUser ? (
+          <div className="card card-padding space-y-3">
+            <p className="text-lg font-semibold text-dark">Connectez-vous pour faire un don</p>
+            <p className="text-sm text-slate-600">Votre don sera associe a votre compte.</p>
+            <button className="btn-primary w-full" onClick={() => navigate('/login')}>
+              Connexion
+            </button>
+          </div>
+        ) : HAS_STRIPE ? (
+          <DonationFormStripe
+            onSubmit={handleDonation}
+            campaignTitle={campaign.title}
+            lockIdentity
+            prefillName={currentUser?.name || ''}
+            prefillEmail={currentUser?.email || ''}
+          />
         ) : (
-          <DonationForm onSubmit={handleDonation} campaignTitle={campaign.title} />
+          <DonationForm
+            onSubmit={handleDonation}
+            campaignTitle={campaign.title}
+            lockIdentity
+            prefillName={currentUser?.name || ''}
+            prefillEmail={currentUser?.email || ''}
+          />
         )}
         <div className="card card-padding text-sm text-slate-600">
-          {HAS_STRIPE ? (
-            <>
-              <p className="font-semibold text-dark">Stripe en mode test</p>
-              <p>
-                Paiement reel en environnement test via Stripe. Utilisez la carte 4242 4242 4242 4242, une date future et un CVC quelconque.
-              </p>
-            </>
-          ) : (
-            <>
-              <p className="font-semibold text-dark">Simulation Stripe test</p>
-              <p>
-                Pas de backend configure. Le front simule l ajout de don et met a jour les statistiques en memoire.
-              </p>
-            </>
-          )}
+          <p className="font-semibold text-dark">A propos du paiement</p>
+          <p>Les montants sont en dirhams (DH). Aucun frais supplementaire n est ajoute par la plateforme.</p>
         </div>
       </div>
     </div>
   );
 }
+
 

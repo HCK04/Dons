@@ -20,10 +20,12 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   const myCampaigns = campaigns.filter((c) => c.creatorId === currentUser?.id);
+  const canCreateCampaign = currentUser && (currentUser.role === 'organisation' || currentUser.role === 'admin');
+  const formatDH = (amount) => `${Number(amount).toLocaleString('fr-MA', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} DH`;
   const stats = [
     {
       label: 'Montant global',
-      value: totals.totalCollected.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }),
+      value: formatDH(totals.totalCollected),
     },
     { label: 'Donateurs', value: totals.totalDonors },
     { label: 'Campagnes', value: campaigns.length },
@@ -62,9 +64,11 @@ export default function Dashboard() {
           <h1 className="text-2xl font-bold text-dark">Tableau de bord</h1>
         </div>
         <div className="flex gap-3">
-          <Link to="/campaigns/new" className="btn-primary">
-            Nouvelle campagne
-          </Link>
+          {canCreateCampaign && (
+            <Link to="/campaigns/new" className="btn-primary">
+              Nouvelle campagne
+            </Link>
+          )}
           <Link to="/profile" className="btn-ghost">
             Profil
           </Link>
@@ -73,8 +77,8 @@ export default function Dashboard() {
 
       <StatGrid stats={stats} />
 
-      <div className="grid gap-6 lg:grid-cols-2 tilt-wrapper">
-        <div className="card card-padding space-y-4 tilt-card">
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="card card-padding space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-sm text-slate-500">Collecte vs objectif</p>
             <span className="badge">Vue globale</span>
@@ -132,7 +136,7 @@ export default function Dashboard() {
         </div>
         {myCampaigns.length === 0 ? (
           <div className="card card-padding text-sm text-slate-600">
-            Vous n avez pas encore de campagne. Creez-en une pour commencer.
+            Vous n avez pas encore de campagne.
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
